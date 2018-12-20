@@ -10,6 +10,21 @@ def get_next_page_url(nextPage):
     return url_input.get() + "strana-" + str(nextPage) + "/"
 
 
+# -- parsing table row --------------------------------------------------------
+def get_rating(cols):
+    if cols[1].find("img") and cols[1].find("img").has_attr('alt'):
+        return cols[1].find("img").attrs['alt']
+    else:
+        return 'odpad!'
+
+
+def get_link_on_csfd(cols):
+    if cols[0].find("a") and cols[0].find("a").has_attr('href'):
+        return 'https://www.csfd.cz' + cols[0].find("a").attrs['href']
+    else:
+        return ''
+
+
 def get_link_on_imdb(csfd_url):
     csfd_page = requests.get(csfd_url)
     csfd_soup = BeautifulSoup(csfd_page.content, 'html.parser')
@@ -28,18 +43,14 @@ def get_link_on_imdb(csfd_url):
 
 
 def transform_table_row(cols):
-    nazov = cols[0].getText()
-    hodnotenie = 'odpad!'
-    if cols[1].find("img") and cols[1].find("img").has_attr('alt'):
-        hodnotenie = cols[1].find("img").attrs['alt']
-    datum = cols[2].getText()
-    link_on_csfd = ''
-    if cols[0].find("a") and cols[0].find("a").has_attr('href'):
-        link_on_csfd = 'https://www.csfd.cz' + cols[0].find("a").attrs['href']
+    title = cols[0].getText()
+    rating = get_rating(cols)
+    rating_date = cols[2].getText()
+    link_on_csfd = get_link_on_csfd(cols)
     # todo
     # link_on_imdb = get_link_on_imdb(link_on_csfd)
 
-    return [nazov, hodnotenie, datum, link_on_csfd]
+    return [title, rating, rating_date, link_on_csfd]
 
 
 def print_table(table, writer):
