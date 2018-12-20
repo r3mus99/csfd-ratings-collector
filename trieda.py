@@ -4,6 +4,7 @@ import csv
 from bs4 import BeautifulSoup
 from tkinter import *
 from tkinter import ttk
+from tkinter import messagebox
 
 
 def get_next_page_url(nextPage):
@@ -67,6 +68,10 @@ def print_table(table, writer):
 
 
 def print_pages():
+    # todo has_selection
+    if radioButtonSelection.get() != 1 and radioButtonSelection.get() != 2:
+        return
+
     url = url_input.get()
     soup = BeautifulSoup(requests.get(url).content, 'html.parser')
 
