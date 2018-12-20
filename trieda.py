@@ -1,6 +1,27 @@
 import requests
 import csv
 from bs4 import BeautifulSoup
+from tkinter import *
+
+root = Tk()
+
+topFrame = Frame(root)
+topFrame.pack()
+
+bottomFrame = Frame(root)
+bottomFrame.pack(side=BOTTOM)
+
+button1 = Button(topFrame, text='hahaha', fg='red')
+button2 = Button(topFrame, text='hehehe', fg='red')
+button3 = Button(topFrame, text='huhuhu', fg='red')
+button4 = Button(bottomFrame, text='hihihi', fg='blue')
+
+button1.pack(side=LEFT)
+button2.pack(side=LEFT)
+button3.pack(side=LEFT)
+button4.pack()
+
+root.mainloop()
 
 def get_next_page_url(nextPage):
     return url + "strana-" + str(nextPage) + "/"  # "https://www.csfd.cz/uzivatel/55555-marecko/hodnoceni/strana-2/"
@@ -29,7 +50,7 @@ actualPage = 1
 with open('output.csv', 'w', encoding='utf-16') as myfile:
     writer = csv.writer(myfile, delimiter='\t', quoting=csv.QUOTE_NONE, quotechar='', lineterminator='\n')
 
-    while table is not None:
+    while table is None: # todo add not later
         print_table(table)
 
         actualPage = actualPage + 1
