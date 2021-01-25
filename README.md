@@ -1,3 +1,5 @@
+![Screenshot](screenshot.png)
+
 # csfd-ratings-collector
  + simple csfd web scraper
  + collect all ratings from csfd
