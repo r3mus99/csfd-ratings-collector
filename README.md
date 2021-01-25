@@ -1,13 +1,17 @@
 # csfd-ratings-collector
-collect all ratings from csfd
+ + simple csfd web scraper
+ + collect all ratings from csfd
 
-todo: sync with trakt.tv
-
-### *use py/python
+### TODOs
+ + :heavy_check_mark: console output
+ + :heavy_check_mark: csv output
+ + :heavy_check_mark: imdb url resolver
+ + :x: table / listview output
+ + :x: sync with trakt.tv
 
 ## install dependencies
-py -m pip install requests <br />
-py -m pip install beautifulsoup4 <br />
+`py -m pip install requests` <br />
+`py -m pip install beautifulsoup4` <br />
 
 ## run
-py main.py :+1:
+`py main.py` :+1:
