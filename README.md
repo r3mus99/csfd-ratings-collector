@@ -10,6 +10,7 @@
  + :heavy_check_mark: imdb url resolver
  + :x: table / listview output
  + :x: sync with trakt.tv
+ + :x: sync with imdb.com
 
 ## install dependencies
 `py -m pip install requests` <br />
