@@ -3,11 +3,18 @@ from tkinter import *
 from tkinter.ttk import Progressbar
 from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
+import zlib
 
 
 def url_to_soup(url):
-    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})  # user-agent to prevent scrapper bots
-    html = urlopen(req).read().decode("utf-8")
+    req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
+    res = urlopen(req)
+
+    if res.info().get('Content-Encoding') == 'gzip':
+        html = zlib.decompress(res.read(), 16+zlib.MAX_WBITS)
+    else:
+        html = res.read().decode("utf-8")
+
     return BeautifulSoup(html, "html.parser")
 
 
@@ -34,26 +41,28 @@ def get_link_on_imdb(csfd_url):
     csfd_soup = url_to_soup(csfd_url)
 
     share_div = csfd_soup.find("div", {"id": "share"})
+
     if share_div is None:
-        return ''
+        return None
+
     imdb_link = share_div.find("a", {"title": "profil na IMDb.com"})
+
     if imdb_link is None:
-        return ''
+        return None
 
-    if imdb_link.attrs['href'] is None:
-        return ''
-
-    statusText.set(imdb_link.attrs['href'])
+    return imdb_link.attrs['href']
 
 
 def cols_to_data(cols):
     title = cols[0].getText()
     rating = get_rating(cols)
     rating_date = cols[2].getText()
-    link_on_csfd = get_link_on_csfd(cols)
-    # todo link_on_imdb = get_link_on_imdb(link_on_csfd)
+    csfd_url = get_link_on_csfd(cols)
+    imdb_url = None
+    if cb_read_imdb_val.get() == 1:
+        imdb_url = get_link_on_imdb(csfd_url)
 
-    return [title, rating, rating_date, link_on_csfd]
+    return [title, rating, rating_date, csfd_url, imdb_url]
 
 
 def print_table(table, writer):
@@ -69,6 +78,15 @@ def print_table(table, writer):
                 writer.writerow(data)
 
 
+def print_first_row(table):
+    rows = table.find_all("tr")
+    row = rows[2]
+    cols = row.find_all("td")
+    if cols:
+        data = cols_to_data(cols)
+        print(data)
+
+
 def print_pages():
     if rb_value.get() != 1 and rb_value.get() != 2:
         return
@@ -76,25 +94,28 @@ def print_pages():
     soup = url_to_soup(e_url.get())
 
     table = soup.find("table")
+
     actual_page = 1
 
     with open('output.csv', 'w', encoding='utf-16') as myfile:
-        writer = csv.writer(myfile, delimiter='\t',
-                            quoting=csv.QUOTE_NONE, quotechar='', lineterminator='\n')
+        writer = csv.writer(myfile, delimiter='\t', quoting=csv.QUOTE_NONE, quotechar='', lineterminator='\n')
 
-        while table is not None:
+        if cb_read_all_val.get() != 1:
             print_table(table, writer)
+        else:
+            while table is not None:
+                print_table(table, writer)
 
-            actual_page = actual_page + 1
-            next_page_url = get_next_page_url(actual_page)
+                actual_page = actual_page + 1
+                next_page_url = get_next_page_url(actual_page)
 
-            soup = url_to_soup(next_page_url)
-            table = soup.find("table")
-            print("{0} - {1}".format(table is not None, next_page_url))
+                soup = url_to_soup(next_page_url)
+                table = soup.find("table")
+                print("{0} - {1}".format(table is not None, next_page_url))
 
-            root.update_idletasks()
-            statusText.set(next_page_url)
-            progress['value'] = actual_page
+                root.update_idletasks()
+                statusText.set(next_page_url)
+                progress['value'] = actual_page
         progress['value'] = 100
 
 
@@ -131,17 +152,29 @@ rb_console.grid(row=1, column=1, sticky='w')
 rb_console.select()
 
 rb_csv = Radiobutton(f_input, text="csv", variable=rb_value, value=2)
-rb_csv.grid(row=2, column=1, sticky='w')
+rb_csv.grid(row=2, column=1, sticky=W)
+
+l_settings = Label(f_input, text="nastavenia", padx=5)
+l_settings.grid(row=3, sticky='w')
+
+cb_read_imdb_val = IntVar()
+cb_read_imdb = Checkbutton(f_input, text="čítať imdb adresy", variable=cb_read_imdb_val)
+cb_read_imdb.grid(row=3, column=1, sticky=W)
+
+cb_read_all_val = IntVar()
+cb_read_all = Checkbutton(f_input, text="čítať všetky strany", variable=cb_read_all_val)
+cb_read_all.grid(row=4, column=1, sticky=W)
+
 
 b_load = Button(f_input, text="Načítaj", command=print_pages)
-b_load.grid(row=3, column=1, sticky='we')
+b_load.grid(row=5, column=1, sticky='we')
 
 # -- bottom frame content -----------------------------------------------------
 statusText = StringVar()
 status = Label(f_footer, textvariable=statusText)
 status.pack()
 
-progress = Progressbar(f_footer, orient=HORIZONTAL, length=410, mode='determinate')
+progress = Progressbar(f_footer, orient=HORIZONTAL, length=500, mode='determinate')
 progress.pack()
 
 root.mainloop()
