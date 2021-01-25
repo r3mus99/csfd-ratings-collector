@@ -1,5 +1,7 @@
 # csfd-ratings-collector
-collect all ratings from csfd and eventually post them on imdb
+collect all ratings from csfd
+
+todo: sync with trakt.tv
 
 ### *use py/python
 
@@ -8,4 +10,4 @@ py -m pip install requests <br />
 py -m pip install beautifulsoup4 <br />
 
 ## run
-py trieda.py :+1:
+py main.py :+1:
