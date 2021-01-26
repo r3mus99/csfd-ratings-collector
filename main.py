@@ -8,6 +8,27 @@ from urllib.request import Request, urlopen
 from bs4 import BeautifulSoup
 
 
+# region constants
+WIN_TITLE = 'ČSFD.cz / IMDb.com / Trakt.tv'
+DEFAULT_URL = "https://www.csfd.cz/uzivatel/1-pomo/hodnoceni/"
+PADX_05 = (0, 5)
+PADY_55 = (5, 5)
+PADX_020 = (0, 20)
+# labels
+L_URL = "url"
+L_OUTPUT = "výstup"
+L_SCREEN = "obrazovka"
+L_CSV = "csv"
+L_SETTINGS = "nastavenia"
+L_READ_IMDB_URLS = "čítať imdb adresy (náročná operácia)"
+L_READ_CSFD_URLS = "čítať všetky strany (náročná operácia)"
+L_LOAD = "Načítaj"
+L_DATE = "Dátum"
+L_RATING = "Hodnotenie"
+L_MOVIE = "Film"
+# endregion constants
+
+
 # region functions
 def url_to_soup(url):
     req = Request(url, headers={'User-Agent': 'Mozilla/5.0'})
@@ -183,7 +204,7 @@ def link_tree(self):
 
 
 root = Tk()
-root.title('CSFD.cz / IMDB.com / Trakt.tv')
+root.title(WIN_TITLE)
 root.minsize(400, 400)
 root["padx"] = 10
 root["pady"] = 10
@@ -193,48 +214,54 @@ f_input = Frame(root)
 f_content = Frame(root)
 f_footer = Frame(root)
 
-f_header.pack(anchor=W)
-f_input.pack(fill=X)
+f_header.pack(fill=X, pady=PADY_55)
+f_header.columnconfigure(0, weight=1)
+f_header.columnconfigure(2, weight=1)
+f_header.columnconfigure(4, weight=1)
+f_input.pack(fill=X, pady=PADY_55)
 f_input.columnconfigure(1, weight=1)
 f_content.pack(fill=BOTH, expand=True)
 f_footer.pack(fill=X)
 
 # region header
-header = Label(f_header, text="CSFD.cz", fg="red", font=("Helvetica", 20, "bold italic"))
-header.pack(side=LEFT)
+Label(f_header, text="ČSFD.cz", fg="red", font=("Helvetica", 20, "bold italic")).grid(row=0, column=0)
+Label(f_header, text="⇨", font=("Helvetica", 20)).grid(row=0, column=1)
+Label(f_header, text="IMDb.com", fg="black", bg="yellow", font=("Impact", 20)).grid(row=0, column=2)
+Label(f_header, text="⇨", font=("Helvetica", 20)).grid(row=0, column=3)
+Label(f_header, text="Trakt.tv", fg="black", font=("Helvetica", 20)).grid(row=0, column=4)
 # endregion header
 # region input
-l_url = Label(f_input, text="url")
-l_url.grid(row=0, padx=(0, 5), sticky=W)
+l_url = Label(f_input, text=L_URL)
+l_url.grid(row=0, padx=PADX_05, sticky=W)
 
 e_url = Entry(f_input)
-e_url.insert(0, "https://www.csfd.cz/uzivatel/1-pomo/hodnoceni/")
+e_url.insert(0, DEFAULT_URL)
 e_url.grid(row=0, column=1, sticky=W + E)
 
-l_output = Label(f_input, text="výstup")
-l_output.grid(row=1, padx=(0, 5), sticky=W)
+l_output = Label(f_input, text=L_OUTPUT)
+l_output.grid(row=1, padx=PADX_05, sticky=W)
 
 rb_value = IntVar()
-rb_console = Radiobutton(f_input, text="obrazovka", variable=rb_value, value=1)
+rb_console = Radiobutton(f_input, text=L_SCREEN, variable=rb_value, value=1)
 rb_console.grid(row=1, column=1, sticky=W)
 rb_console.select()
 
-rb_csv = Radiobutton(f_input, text="csv", variable=rb_value, value=2)
+rb_csv = Radiobutton(f_input, text=L_CSV, variable=rb_value, value=2)
 rb_csv.grid(row=2, column=1, sticky=W)
 
-l_settings = Label(f_input, text="nastavenia")
-l_settings.grid(row=3, padx=(0, 5), sticky=W)
+l_settings = Label(f_input, text=L_SETTINGS)
+l_settings.grid(row=3, padx=PADX_05, sticky=W)
 
 cb_read_imdb_val = IntVar()
-cb_read_imdb = Checkbutton(f_input, text="čítať imdb adresy (náročná operácia)", variable=cb_read_imdb_val)
+cb_read_imdb = Checkbutton(f_input, text=L_READ_IMDB_URLS, variable=cb_read_imdb_val)
 cb_read_imdb.grid(row=3, column=1, sticky=W)
 
 cb_read_all_val = IntVar()
-cb_read_all = Checkbutton(f_input, text="čítať všetky strany (náročná operácia)", variable=cb_read_all_val)
+cb_read_all = Checkbutton(f_input, text=L_READ_CSFD_URLS, variable=cb_read_all_val)
 cb_read_all.grid(row=4, column=1, sticky=W)
 
-b_load = Button(f_input, text="Načítaj", command=load)
-b_load.grid(row=5, columnspan=2, pady=5, sticky=W + E)
+b_load = Button(f_input, text=L_LOAD, command=load)
+b_load.grid(row=5, columnspan=2, sticky=W + E)
 # endregion input
 # region content
 tree = Treeview(f_content, selectmode='browse')
@@ -242,11 +269,11 @@ tree["columns"] = ("#1", "#2")
 tree.column("#0", width=80, stretch=NO)
 tree.column("#1", width=80, stretch=NO, anchor=CENTER)
 tree.column("#2", width=400)
-tree.heading("#0", text="Dátum")
-tree.heading("#1", text="Hodnotenie")
-tree.heading("#2", text="Film")
+tree.heading("#0", text=L_DATE)
+tree.heading("#1", text=L_RATING)
+tree.heading("#2", text=L_MOVIE)
 # Scrollbar
-sb_vertical = Scrollbar(f_content, orient="vertical", command=tree.yview)
+sb_vertical = Scrollbar(f_content, orient=VERTICAL, command=tree.yview)
 sb_vertical.pack(side=RIGHT, fill=Y)
 tree.configure(yscrollcommand=sb_vertical.set)
 # onClick (open url)
