@@ -8,7 +8,7 @@
  + :heavy_check_mark: console output
  + :heavy_check_mark: csv output
  + :heavy_check_mark: imdb url resolver
- + :x: table / listview output
+ + :heavy_check_mark: window output
  + :x: sync with trakt.tv
  + :x: sync with imdb.com
 
