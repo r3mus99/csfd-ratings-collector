@@ -124,6 +124,12 @@ def get_max_page(soup):
     return max_page
 
 
+def load():
+    import threading
+    thread = threading.Thread(target=print_pages, args=())
+    thread.start()
+
+
 def print_pages():
     if rb_value.get() != 1 and rb_value.get() != 2:
         return
@@ -168,7 +174,7 @@ def is_valid_url(url):
     return re.match(regex, url) is not None
 
 
-def link_tree():
+def link_tree(self):
     input_id = tree.selection()
     input_item = tree.item(input_id, "values")[1]
     if is_valid_url(input_item):
@@ -227,7 +233,7 @@ cb_read_all_val = IntVar()
 cb_read_all = Checkbutton(f_input, text="čítať všetky strany (náročná operácia)", variable=cb_read_all_val)
 cb_read_all.grid(row=4, column=1, sticky=W)
 
-b_load = Button(f_input, text="Načítaj", command=print_pages)
+b_load = Button(f_input, text="Načítaj", command=load)
 b_load.grid(row=5, columnspan=2, pady=5, sticky=W + E)
 # endregion input
 # region content
