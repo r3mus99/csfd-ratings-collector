@@ -88,8 +88,7 @@ def print_table(table, writer, all_pages=False):
             data = cols_to_data(cols)
             if rb_value.get() == 1:
                 parent = tree.insert(parent='', index='end', text=data[0], values=(data[1], data[2]))
-                child = tree.insert(parent=parent, index='end', text='', values=('', data[3]))
-                # todo style
+                tree.insert(parent=parent, index='end', text='', values=('', data[3]))
                 if cb_read_imdb_val.get() == 1:
                     tree.insert(parent=parent, index='end', text='', values=('', data[4]))
             elif rb_value.get() == 2:
@@ -169,7 +168,7 @@ def is_valid_url(url):
     return re.match(regex, url) is not None
 
 
-def link_tree(self):
+def link_tree():
     input_id = tree.selection()
     input_item = tree.item(input_id, "values")[1]
     if is_valid_url(input_item):
@@ -190,8 +189,7 @@ f_footer = Frame(root)
 
 f_header.pack(anchor=W)
 f_input.pack(fill=X)
-f_input.columnconfigure(0, minsize=75)
-f_input.columnconfigure(1, weight=1, minsize=100)
+f_input.columnconfigure(1, weight=1)
 f_content.pack(fill=BOTH, expand=True)
 f_footer.pack(fill=X)
 
@@ -201,33 +199,33 @@ header.pack(side=LEFT)
 # endregion header
 # region input
 l_url = Label(f_input, text="url")
-l_url.grid(row=0, padx=5, sticky='w')
+l_url.grid(row=0, padx=(0, 5), sticky=W)
 
 e_url = Entry(f_input)
 e_url.insert(0, "https://www.csfd.cz/uzivatel/1-pomo/hodnoceni/")
-e_url.grid(row=0, column=1, sticky='we')
+e_url.grid(row=0, column=1, sticky=W + E)
 
 l_output = Label(f_input, text="výstup")
-l_output.grid(row=1, padx=5, sticky='w')
+l_output.grid(row=1, padx=(0, 5), sticky=W)
 
 rb_value = IntVar()
 rb_console = Radiobutton(f_input, text="obrazovka", variable=rb_value, value=1)
-rb_console.grid(row=1, column=1, sticky='w')
+rb_console.grid(row=1, column=1, sticky=W)
 rb_console.select()
 
 rb_csv = Radiobutton(f_input, text="csv", variable=rb_value, value=2)
-rb_csv.grid(row=2, column=1, sticky='w')
+rb_csv.grid(row=2, column=1, sticky=W)
 
 l_settings = Label(f_input, text="nastavenia")
-l_settings.grid(row=3, padx=5, sticky='w')
+l_settings.grid(row=3, padx=(0, 5), sticky=W)
 
 cb_read_imdb_val = IntVar()
 cb_read_imdb = Checkbutton(f_input, text="čítať imdb adresy (náročná operácia)", variable=cb_read_imdb_val)
-cb_read_imdb.grid(row=3, column=1, sticky='w')
+cb_read_imdb.grid(row=3, column=1, sticky=W)
 
 cb_read_all_val = IntVar()
 cb_read_all = Checkbutton(f_input, text="čítať všetky strany (náročná operácia)", variable=cb_read_all_val)
-cb_read_all.grid(row=4, column=1, sticky='w')
+cb_read_all.grid(row=4, column=1, sticky=W)
 
 b_load = Button(f_input, text="Načítaj", command=print_pages)
 b_load.grid(row=5, columnspan=2, pady=5, sticky=W + E)
@@ -241,10 +239,12 @@ tree.column("#2", width=400)
 tree.heading("#0", text="Dátum")
 tree.heading("#1", text="Hodnotenie")
 tree.heading("#2", text="Film")
+# Scrollbar
 sb_vertical = Scrollbar(f_content, orient="vertical", command=tree.yview)
 sb_vertical.pack(side=RIGHT, fill=Y)
-tree.bind("<Double-1>", link_tree)
 tree.configure(yscrollcommand=sb_vertical.set)
+# onClick (open url)
+tree.bind("<Double-1>", link_tree)
 tree.pack(fill=BOTH, expand=True)
 # endregion content
 # region footer
@@ -253,7 +253,7 @@ status = Label(f_footer, textvariable=statusText)
 status.pack()
 
 progress = Progressbar(f_footer, orient=HORIZONTAL, mode='determinate')
-progress.pack(fill=BOTH)
+progress.pack(fill=X)
 # endregion footer
 
 root.mainloop()
